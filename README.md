@@ -114,20 +114,9 @@ Client Response
 
 # 🚀 Docker Workflow Console
 
-| สถานการณ์ (Scenario) | คำสั่งที่ต้องใช้ (Copy & Run) |
-| :--- | :--- |
-| **💻 พัฒนา (Development)** | `docker-compose up -d --build --remove-orphans backend-dev && docker-compose logs -f backend-dev` |
-| **🚢 ใช้งานจริง (Production)** | `docker-compose up -d --build --remove-orphans backend-prod && docker-compose ps` |
-| **🛑 หยุดระบบ (Stop)** | `docker-compose down --remove-orphans` |
-| **🧹 ล้างระบบ (Full Reset)** | `docker-compose down -v --remove-orphans` |
 
----
+→ 1. docker-compose up -d 
 
-### ⚠️ [คำเตือน] เกี่ยวกับ Full Reset (ล้างระบบ)
-> **สำคัญมาก:** เมื่อใช้คำสั่ง `docker-compose down -v` ข้อมูลทั้งหมดที่เก็บอยู่ในฐานข้อมูล (Database) จะถูก **"ลบถาวร"** เนื่องจากคำสั่ง `-v` จะไปสั่งลบ Volume ที่เก็บไฟล์ข้อมูลทิ้งทันที 
-> * **ใช้เมื่อ:** ต้องการเริ่มต้นระบบใหม่ตั้งแต่ศูนย์ หรือมีข้อผิดพลาดร้ายแรงเกี่ยวกับ Database Schema
-> * **ห้ามใช้เมื่อ:** มีข้อมูลสำคัญที่ยังไม่ได้ Backup ไว้บนเครื่องจริง
+→ 2. docker-compose logs -f backend (Check Error)   
 
-### 💡 รายละเอียดพอร์ต (Ports)
-* **Dev Mode:** `http://localhost:3000` (รองรับ Hot-reload)
-* **Prod Mode:** `http://localhost:8080` (เน้นความเสถียร)
+→ 3. docker-compose down (ปิดระบบ)
