@@ -1,8 +1,52 @@
 services:
-  backend:
+  # --- โหมดพัฒนา (Dev) ---
+  backend-dev:
     build: .
-    image: cloud-backend-js
-    container_name: my-app-js
+    container_name: app-dev
+    command: npm run dev
     ports:
-      - "3000:3000"
+      - "${WEB_PORT}:3000"  # ใช้ 3000 ตามตัวแปรที่ส่งมา
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # --- โหมดรันจริง (Deploy/Prod) ---
+  backend-prod:
+    build: .
+    container_name: app-prod
     restart: always
+    ports:
+      - "8080:3000" # พอร์ตสำหรับยิงเข้า Production (แยกจาก Dev)
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # --- Database ---
+  db:
+    image: postgres:15-alpine
+    container_name: my-db
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - "${DB_PORT}:5432" # ใช้พอร์ต 5432 ตามที่คุณตั้งไว้
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
