@@ -13,7 +13,7 @@ app.use(express.json()); // Parse incoming JSON requests
 
 // Define a basic route
 app.get('/', (req: Request, res: Response) => {
-  res.json({ message: 'Welcome to my Node.js backend!' });
+  res.json({ message: 'Niigaa' });
 });
 
 // Start the server
