@@ -41,7 +41,7 @@ JWT_SECRET=your_secret_key
 
 ### 4. รันโปรเจกต์
 ```bash
-#รัน database บนเครื่อง
+#รัน database บนเครื่อง ต้องเปิด docker ก่อน
 docker-compose up -d
 
 # Development mode (auto-restart เมื่อแก้ไขไฟล์)
