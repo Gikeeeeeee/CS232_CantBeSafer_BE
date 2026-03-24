@@ -41,11 +41,11 @@ JWT_SECRET=your_secret_key
 
 ### 4. รันโปรเจกต์
 ```bash
+#รัน database บนเครื่อง
+docker-compose up -d
+
 # Development mode (auto-restart เมื่อแก้ไขไฟล์)
 npm run dev (ใช้อันนี้เป็นหลัก)
-
-# Production mode
-npm start
 ```
 
 เปิดเบราว์เซอร์ไปที่ → `http://localhost:3000`
