@@ -34,9 +34,19 @@ cp .env.example .env
 ```
 จากนั้นเปิดไฟล์ `.env` แล้วแก้ไขค่าให้ตรงกับเครื่องของคุณ เช่น:
 ```env
-PORT=3000
-DATABASE_URL=your_database_url
-JWT_SECRET=your_secret_key
+DB_USER=
+DB_PASSWORD=
+DB_NAME=
+
+WEB_PORT=3000
+DB_PORT=5433
+NODE_ENV=development
+
+JWT_SECRET=
+#ให้ทำการ แก้ # เป็นสิ่งที่ต้องใส่ แล้ว cat .env.example > .env                   แล้วลบ .env.example ออก
+
+PGADMIN_EMAIL=
+PGADMIN_PASSWORD=
 ```
 
 ### 4. รันโปรเจกต์
