@@ -1,23 +1,35 @@
 import express, { Request, Response } from 'express';
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { findUserByUsername } from '../models/UserModel';
+import { findUserByUsername, MakeUser,findUserByEmail } from '../models/UserModel';
 
 export const handleLogin = async ( username: string, passwordText: string) => {
-  //findby username
   const user = await findUserByUsername(username);
-  //if not found return null
   if (!user) return null;
-  //compare bcrypt
   const isMatch = await bcrypt.compare(passwordText, user.password_hash);
-  //if not return null
   if (!isMatch) return null;
-  //generate jwt accesstoken
   const accessToken = jwt.sign(
     { userId: user.user_id, role: user.role, email: user.email },
     process.env.JWT_SECRET as string,
     { expiresIn: '1d' }
   );
-  //return accesstoken
   return accessToken;
+}
+
+export const handleSignUp = async(username:string,password:string,passwordConfirm:string,Email:string)=>{
+  if(password !== passwordConfirm){
+    throw new Error("Passwords not match");
+  }
+  const existingUser = await findUserByEmail(Email);
+  if(existingUser){
+    const error:any = new Error("Email already registered");
+    error.code = '23505';
+    throw error;  
+  }
+  const saltRounds = 12;
+  const hashPasswordword = await bcrypt.hash(password,saltRounds);
+  
+  const user = await MakeUser(username,hashPasswordword,Email)
+    
+  return {id:user.id};
 }
