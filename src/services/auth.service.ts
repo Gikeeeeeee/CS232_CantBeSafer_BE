@@ -14,9 +14,13 @@ export const handleLogin = async ( username: string, passwordText: string) => {
   if (!isMatch) return null;
   //generate jwt accesstoken
   const accessToken = jwt.sign(
-    { userId: user.user_id, role: user.role, email: user.email },
-    process.env.JWT_SECRET as string,
-    { expiresIn: '1d' }
+    { 
+      user_id: user.user_id, 
+      role: user.role, 
+      username: user.username 
+    },
+    process.env.TOKEN_KEY as string,
+    { expiresIn: '2h' }
   );
   //return accesstoken
   return accessToken;
