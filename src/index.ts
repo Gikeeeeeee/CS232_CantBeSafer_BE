@@ -11,10 +11,13 @@ const app = express();
 app.use(cors()); // Enable Cross-Origin Resource Sharing
 app.use(express.json()); // Parse incoming JSON requests
 
+import authRouter from './routes/auth.route';
 // Define a basic route
 app.get('/', (req: Request, res: Response) => {
   res.json({ message: 'Niigaa' });
 });
+
+app.use('/auth', authRouter);
 
 // Start the server
 const PORT = process.env.WEB_PORT || 3000;
