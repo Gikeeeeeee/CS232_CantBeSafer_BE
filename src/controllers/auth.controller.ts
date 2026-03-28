@@ -17,11 +17,11 @@ export const login = async (req: Request, res: Response) => {
 
 export const sign_up = async (req:Request,res:Response) => {
   try{
-    const {Username,Password,PasswordConfirm,Email} = req.body;
-    if(!Email || !Password || !Username || !PasswordConfirm) {
+    const {Username,Password,Confirm_pass,Email} = req.body;
+    if(!Email || !Password || !Username || !Confirm_pass) {
       return res.status(400).json({ message: "All fields are required" });
     }
-    const user = await handleSignUp(Username,Password,PasswordConfirm,Email)
+    const user = await handleSignUp(Username,Password,Confirm_pass,Email)
     
     return res.status(201).json({
       message: "User created successfullt" ,
