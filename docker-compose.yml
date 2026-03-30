@@ -10,6 +10,7 @@ services:
       - "${DB_PORT}:5432" # ใช้พอร์ต 5432 ตามที่คุณตั้งไว้
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
   pgadmin:
     image: dpage/pgadmin4

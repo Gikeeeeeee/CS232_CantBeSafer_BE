@@ -40,10 +40,3 @@ export const sign_up = async (req:Request,res:Response) => {
   }
   
 }
-
-export const test_auth = async (req: Request, res: Response) => {
-  return res.status(200).json({ 
-    message: "Auth test route is working correctly!",
-    user: (req as any).user // ส่งข้อมูล user ที่แกะจาก token กลับไปให้ดู
-  });
-};
