@@ -22,7 +22,7 @@ export const handleLogin = async ( username: string, passwordText: string) => {
 
 export const handleSignUp = async(username:string,password:string,passwordConfirm:string,Email:string)=>{
   if(password !== passwordConfirm){
-    throw new Error("Passwords not match");
+    throw new Error("Passwords do not match");
   }
   const existingUser = await findUserByEmail(Email);
   if(existingUser){
@@ -35,5 +35,5 @@ export const handleSignUp = async(username:string,password:string,passwordConfir
   
   const user = await MakeUser(username,hashPasswordword,Email)
     
-  return {id:user.id};
+  return {id:user.user_id};
 }

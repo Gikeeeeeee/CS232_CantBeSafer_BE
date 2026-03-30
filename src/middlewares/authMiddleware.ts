@@ -23,7 +23,12 @@ export const verifytoken = (req: any, res: any, next: any) => {
     if (!token) {
         const authHeader = req.headers['authorization'];
         if (authHeader) {
-            token = authHeader;
+            // ตรวจสอบว่าส่งมาในรูปแบบ "Bearer <token>" หรือไม่
+            if (authHeader.startsWith("Bearer ")) {
+                token = authHeader.split(" ")[1];
+            } else {
+                token = authHeader;
+            }
         }
     }
      // ถ้าไม่มี token แนบมา return 403
