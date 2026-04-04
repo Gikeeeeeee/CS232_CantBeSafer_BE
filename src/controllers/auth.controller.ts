@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { handleLogin, handleSignUp } from '../services/auth.service';
 import { error } from 'node:console';
+import jwt from 'jsonwebtoken';
 
 export const login = async (req: Request, res: Response) => {
   const { Username, Password } = req.body;
@@ -40,3 +41,12 @@ export const sign_up = async (req:Request,res:Response) => {
   }
   
 }
+
+export const loginDev = async (req: Request, res: Response) => {
+  const accessToken = jwt.sign(
+    { role: 'dev' },
+    process.env.TOKEN_KEY as string,
+    { expiresIn: '2h' }
+  );
+  return res.status(200).json({ AccessToken: accessToken });
+};
