@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
@@ -21,6 +21,15 @@ app.get('/', (req: Request, res: Response) => {
 
 app.use('/auth', authRouter);
 app.use('/api/reports', reportRouter);
+
+// Error Handling Middleware สำหรับดักจับ Error (เช่น ไฟล์ผิดประเภทจาก Multer) ให้ตอบกลับเป็น JSON
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  if (err) {
+    res.status(400).json({ message: err.message });
+  } else {
+    next();
+  }
+});
 
 // Start the server
 const PORT = process.env.WEB_PORT || 3000;
