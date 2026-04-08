@@ -53,6 +53,7 @@ export const verifytoken = (req: AuthRequest, res: Response, next: NextFunction)
     try{
         const decoded = jwt.verify(token as string, config.TOKEN_KEY as string) as UserPayload;
         req.user = decoded;
+        console.log(req.user);
     }catch(err){
         console.log("JWT Verify Error:", err);
         return res.status(401).send("Invalid or Expired token");

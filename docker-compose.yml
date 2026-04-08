@@ -26,21 +26,21 @@ services:
   localstack:
     image: localstack/localstack:3.0
     ports:
-      - "4566:4566"            # พอร์ตหลักของ LocalStack
+      - "4566:4566" # พอร์ตหลักของ LocalStack
     environment:
-      - SERVICES=s3           # บอกว่าขอใช้แค่ S3
+      - SERVICES=s3 # บอกว่าขอใช้แค่ S3
       - DEBUG=1
       - LOCALSTACK_ACKNOWLEDGE_ACCOUNT_REQUIREMENT=1 # เพิ่มบรรทัดนี้เพื่อข้ามหน้า Login
       - AWS_ENDPOINT_URL=http://localstack:4566
 
   backend:
     # เปลี่ยนจาก image: my-node-app เป็นบรรทัดข้างล่างนี้
-    build: .  
+    build: .
     container_name: my_backend_app
     env_file:
-      - .env  # วิธีนี้จะดึงไฟล์ .env เข้าไปรวมใน Docker ทันที
+      - .env # วิธีนี้จะดึงไฟล์ .env เข้าไปรวมใน Docker ทันที
     ports:
-      - "3000:3000"
+      - "3003:3000"
     depends_on:
       - db
       - localstack
