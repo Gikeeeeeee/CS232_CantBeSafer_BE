@@ -2,8 +2,8 @@ import { Router } from 'express';
 import { uploadReportEvidence, postReport } from '../controllers/report.controller';
 import { upload } from '../middlewares/reportMiddleware';
 import * as LocationController from '../controllers/location.controller';
-
-import { verifytoken } from '../middlewares/authMiddleware'; 
+import { getAdminActiveMap } from '../controllers/adminReport.controller';
+import { verifytoken, checkRole } from '../middlewares/authMiddleware';
 
 const router = Router();
 
@@ -12,9 +12,11 @@ const router = Router();
 
 // 2. User ส่งข้อมูลรายงาน (พิกัด + รายละเอียด + URL รูป/วิดีโอ)
 router.post('/post', verifytoken, postReport);
-router.post('/postevidence',  upload.single('file'),verifytoken, uploadReportEvidence);
+router.post('/postevidence', upload.single('file'), verifytoken, uploadReportEvidence);
 
 router.get('/active-map', LocationController.getActiveIncidentPoints);
+router.get('/admin-active-map', verifytoken, checkRole(["admin"]), getAdminActiveMap);
+
 // 2. User ส่งข้อมูลรายงาน (พิกัด + รายละเอียด + URL รูป)
 
 export default router;
