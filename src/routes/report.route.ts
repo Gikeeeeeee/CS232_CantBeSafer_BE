@@ -15,6 +15,6 @@ router.post('/post', verifytoken, postReport);
 router.post('/postevidence',  upload.single('file'),verifytoken, uploadReportEvidence);
 
 router.get('/active-map', LocationController.getActiveIncidentPoints);
-// 2. User ส่งข้อมูลรายงาน (พิกัด + รายละเอียด + URL รูป)
+
 
 export default router;

@@ -37,7 +37,7 @@ export const sign_up = async (req:Request,res:Response) => {
       }
 
       console.error("Signup error:",error);
-      return res.status(500).json({ message: "Internal server errorBRUH" });
+      return res.status(500).json({ message: "Internal server errorBRUH (the error maybe in docker or backend console but if u dont want to get in to, the error is) " + error + error.message });
   }
   
 }
