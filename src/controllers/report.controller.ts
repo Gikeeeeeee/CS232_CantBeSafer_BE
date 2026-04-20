@@ -29,8 +29,10 @@ export const uploadReportEvidence = async (req: any, res: Response) => {
 
         // 2. เรียกใช้ Service เพื่อส่งรูปไป S3/LocalStack
         // req.file จะมีค่าหลังจากผ่าน multer middleware มาแล้ว
+        console.log('before uploads3 File to upload:', req.file);
         const fileUrl = await uploadToS3(req.file as Express.Multer.File);
-        
+        console.log('after uploads3 File to upload:', req.file);
+
         // เรียกใช้ Service เพื่อบันทึกข้อมูลหลักฐานลง Database (ตาราง report_evidences)
         const evidence = await handleCreateEvidence({
             report_id: reportIdNum,
@@ -56,7 +58,32 @@ export const uploadReportEvidence = async (req: any, res: Response) => {
         }
 
         console.error('Upload error:', error);
-        res.status(500).json({ message: error.message || 'uploadReportEvidence at controller error' });
+
+        const responseBody: { message: string; details?: any; debugInfo?: any } = {
+            message: error.message || 'An unknown error occurred during upload.',
+        };
+
+        // ตรวจสอบว่าเป็นข้อผิดพลาดจาก AWS SDK หรือไม่ (ดูจากคุณสมบัติทั่วไปของ AWS SDK errors)
+        if (error.name && error.Code) {
+            responseBody.message = `AWS S3 Error: ${error.message}`;
+            responseBody.details = {
+                name: error.name,
+                code: error.Code, // AWS SDK errors มักใช้ 'Code' (ตัวพิมพ์ใหญ่)
+                statusCode: error.$metadata?.httpStatusCode,
+                requestId: error.$metadata?.requestId,
+                // สามารถเพิ่มคุณสมบัติอื่นๆ ที่เกี่ยวข้องได้หากต้องการ
+            };
+        } else {
+            // สำหรับข้อผิดพลาดประเภทอื่นๆ ให้ข้อความทั่วไปแต่รวมข้อความต้นฉบับ
+            responseBody.message = `Server Error: ${error.message || 'uploadReportEvidence at controller error'}`;
+        }
+
+        // สำหรับสภาพแวดล้อมที่ไม่ใช่ Production ให้ข้อมูล Debug เพิ่มเติม
+        if (process.env.NODE_ENV !== 'production') {
+            responseBody.debugInfo = { stack: error.stack, fullErrorObject: JSON.stringify(error, Object.getOwnPropertyNames(error)) };
+        }
+
+        res.status(500).json(responseBody);
         
     }
 };

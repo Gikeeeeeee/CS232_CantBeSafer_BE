@@ -7,30 +7,31 @@ import { LocationClient, SearchPlaceIndexForPositionCommand } from "@aws-sdk/cli
 //npm install -D @types/multer
 
 // ตั้งค่าการเชื่อมต่อกับ AWS
-// Config
 const s3Config: any = {
   region: process.env.AWS_REGION,
-  credentials: {
-    accessKeyId: "gike",
-    secretAccessKey: "gike",
-  },
 };
 
 // Mock
 if (process.env.NODE_ENV === 'development') {
     const mockend = process.env.MOCK_ENDPOINT;
   if (!mockend) {
-    throw new Error("MOCK_ENDPOINT is missing in the .env file.");
+    throw new Error("MOCK_ENDPOINT is missing in the .env file for development.");
   }
-
-  s3Config.endpoint = process.env.MOCK_ENDPOINT; // เช่น http://127.0.0.1:4566
+  s3Config.endpoint = mockend; // เช่น http://127.0.0.1:4566
   s3Config.forcePathStyle = true; // บังคับให้ใช้ path style สำหรับ LocalStack
+  // For LocalStack, credentials can be anything, but it's good practice to provide them
+  s3Config.credentials = {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID || 'test',
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || 'test',
+    sessionToken: process.env.AWS_SESSION_TOKEN || undefined, // LocalStack usually doesn't need session token
+  };
 }
 // Real Test
 if (process.env.NODE_ENV === 'production') {
   s3Config.credentials = {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID as string,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY as string,
+    sessionToken: process.env.AWS_SESSION_TOKEN as string,  // ← Add this
   };
 }
 
@@ -64,12 +65,13 @@ export const getPlaceNameFromCoordinates = async (lat: number, lng: number) => {
 export const uploadToS3 = async (file: Express.Multer.File) => {
   const bucketName = process.env.AWS_S3_EVIDENCE_BUCKET_NAME;
   if (!bucketName) {
-    throw new Error("AWS_S3_BUCKET_NAME is missing in the .env file.");
+    throw new Error("AWS_S3_EVIDENCE_BUCKET_NAME is missing in the .env file.");
   }
 
-  //console.log("fileName1");
+  console.log("found Bucket Name:", bucketName);
   const fileName = `${Date.now()}-${file.originalname}`; // ตั้งชื่อไฟล์ใหม่กันชื่อซ้ำ
-  //console.log("fileName2");
+  console.log("found File Name:", fileName);
+  
   const command = new PutObjectCommand({
     Bucket: bucketName,
     Key: fileName,
