@@ -99,3 +99,38 @@ CREATE TABLE report_boundaries (
     radius FLOAT NOT NULL DEFAULT 50.0, -- รัศมี (เช่น เมตร) ตามรูป API Design ที่คุณส่งมา
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- 6. ตารางแจ้งเตือน (Notifications) ยึดตามการออกแบบในรูปภาพ
+CREATE TABLE notifications (
+    notification_id SERIAL PRIMARY KEY,
+    
+    -- เชื่อมกับตาราง users (ผู้รับการแจ้งเตือน)
+    user_id INTEGER NOT NULL,
+    CONSTRAINT fk_notification_user
+        FOREIGN KEY(user_id) 
+        REFERENCES users(user_id) 
+        ON DELETE CASCADE,
+
+    -- เชื่อมกับตาราง reports (เหตุการณ์ที่เกี่ยวข้อง)
+    report_id INTEGER,
+    CONSTRAINT fk_notification_report
+        FOREIGN KEY(report_id) 
+        REFERENCES reports(report_id) 
+        ON DELETE SET NULL,
+
+    message TEXT NOT NULL,                -- ข้อความแจ้งเตือน
+    sent_at TIMESTAMP DEFAULT NOW(),      -- วันที่เวลาที่ส่ง
+    is_read BOOLEAN DEFAULT FALSE         -- สถานะการอ่าน (เริ่มเป็น false)
+);
+
+-- 7. สร้างผู้ดูแลระบบ (Admin) เริ่มต้น
+-- เปิดใช้งาน extension pgcrypto เพื่อให้สามารถ Hash รหัสผ่านด้วย bcrypt ได้โดยตรงใน SQL
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+INSERT INTO users (username, password_hash, email, role) 
+VALUES (
+    'gikegm', 
+    crypt('gikegm', gen_salt('bf', 12)), -- เข้ารหัสผ่าน 'gikegm' ด้วย bcrypt (Cost=12 ให้ตรงกับ Backend)
+    'gikegm@example.com', 
+    'admin'
+);

@@ -28,7 +28,7 @@ services:
     ports:
       - "4566:4566" # พอร์ตหลักของ LocalStack
     environment:
-      - SERVICES=s3 # บอกว่าขอใช้แค่ S3
+      - SERVICES=s3,sns # บอกว่าขอใช้ S3 และ SNS
       - DEBUG=1
       - LOCALSTACK_ACKNOWLEDGE_ACCOUNT_REQUIREMENT=1 # เพิ่มบรรทัดนี้เพื่อข้ามหน้า Login
       - AWS_ENDPOINT_URL=http://localstack:4566
