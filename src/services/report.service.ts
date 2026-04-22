@@ -140,8 +140,9 @@ export const handleCreateReport = async (reqbody: any, userId: number) => {
 import { createEvidenceInDB } from "../models/ReportModel";
 
 export const handleCreateEvidence = async (reqbody: any, userId: number) => {
-
-
+    if(!reqbody.report_id || !reqbody.file_url){
+      throw new Error("Error at handleCreateEvidence in report.service maybe no report_id or file_url");
+    }
     const evidence = await createEvidenceInDB({
         report_id: reqbody.report_id,
         file_url: reqbody.file_url,
@@ -151,4 +152,25 @@ export const handleCreateEvidence = async (reqbody: any, userId: number) => {
         longitude: reqbody.location?.longitude
     });
     return evidence;
+};
+
+// ลอง test กับ local => run ได้ปกติ
+export const uploadToRDS = async (data: any, userId: number) => {
+    const report = await handleCreateReport(data, userId);
+
+    const evidence = await handleCreateEvidence({
+        report_id: report.report_id,
+        file_url: data.evidence_url, // URL ที่ได้จาก S3
+        file_type: data.file_type || 'image/jpeg',
+        location: data.location // ใช้พิกัดเดียวกันกับ report
+    }, userId);
+
+    return {
+        report_id: report.report_id,
+        report_title: report.report_title,
+        report_status: report.report_status,
+        evidence_url: evidence.file_url,
+        location_name: report.location_name,
+        radius: report.radius
+    };
 };

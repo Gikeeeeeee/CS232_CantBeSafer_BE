@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { uploadReportEvidence, postReport } from '../controllers/report.controller';
+import { uploadReportEvidence, postReport,UploadReportToDB } from '../controllers/report.controller';
 import { upload } from '../middlewares/reportMiddleware';
 import * as LocationController from '../controllers/location.controller';
 
@@ -13,8 +13,7 @@ const router = Router();
 // 2. User ส่งข้อมูลรายงาน (พิกัด + รายละเอียด + URL รูป/วิดีโอ)
 router.post('/post', verifytoken, postReport);
 router.post('/postevidence',  upload.single('file'),verifytoken, uploadReportEvidence);
+router.post('/post-todb', verifytoken, UploadReportToDB);
 
 router.get('/active-map', LocationController.getActiveIncidentPoints);
-
-
 export default router;

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { uploadToS3, handleCreateReport, handleCreateEvidence } from '../services/report.service';
+import { uploadToS3, handleCreateReport, handleCreateEvidence,uploadToRDS } from '../services/report.service';
 import { getReportById } from '../models/ReportModel';
 
 // อัปโหลดไป S3 ---
@@ -119,5 +119,25 @@ export const postReport = async (req: any, res: Response) => {
         });
     } catch (error: any) {
         res.status(500).json({ message: error.message || 'postReport at controller error'});
+    }
+};
+export const UploadReportToDB = async (req: any, res: Response) => {
+    console.log("--- API HIT: UploadReportToDB ---");
+    try {
+        console.log("Body:", req.body);
+        console.log("User:", req.user);
+        const userId = req.user.user_id;
+
+        const result = await uploadToRDS(req.body, userId);
+
+        res.status(201).json({
+            message: "Data successfully recorded to RDS",
+            data: result
+        });
+    } catch (error: any) {
+        console.error('Controller Error:', error);
+        res.status(500).json({ 
+            message: error.message || 'Error occurred while saving to RDS' 
+        });
     }
 };
