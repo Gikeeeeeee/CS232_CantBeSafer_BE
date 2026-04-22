@@ -123,23 +123,37 @@ export const postReport = async (req: any, res: Response) => {
         res.status(500).json({ message: error.message || 'postReport at controller error'});
     }
 };
-export const UploadReportToDB = async (req: any, res: Response) => {
-    console.log("--- API HIT: UploadReportToDB ---");
+
+export const uploadReportToDB = async (req: any, res: Response) => {
     try {
-        console.log("Body:", req.body);
-        console.log("User:", req.user);
+
+        if (!req.file) return res.status(400).json({ message: "No image uploaded" });
+
+        const fileUrl = await uploadToS3(req.file);
+
+        const reportData = {
+            report_title: req.body.title,
+            report_description: req.body.description,
+            urgency_score: parseInt(req.body.urgency_score),
+            location: {
+                latitude: parseFloat(req.body.latitude),
+                longitude: parseFloat(req.body.longitude)
+            },
+            evidence_url: fileUrl, // URL จาก S3 ที่เพิ่งได้มา
+            file_type: req.file.mimetype
+        };
+
         const userId = req.user.user_id;
 
-        const result = await uploadToRDS(req.body, userId);
+        const finalResult = await uploadToRDS(reportData, userId);
 
         res.status(201).json({
-            message: "Data successfully recorded to RDS",
-            data: result
+            message: "Report and Evidence saved to RDS successfully",
+            data: finalResult
         });
+
     } catch (error: any) {
-        console.error('Controller Error:', error);
-        res.status(500).json({ 
-            message: error.message || 'Error occurred while saving to RDS' 
-        });
+        console.error("RDS Save Error:", error);
+        res.status(500).json({ message: error.message });
     }
 };
