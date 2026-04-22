@@ -23,7 +23,8 @@ export const uploadReportEvidence = async (req: any, res: Response) => {
         // เช็คว่า Report มีอยู่จริง และเป็นของคนที่ส่งมาหรือไม่
         const report = await getReportById(reportIdNum);
         if (!report) return res.status(404).json({ message: "Report not found" });
-        if (report.reported_by !== userId) {
+                                            //bypass for dev
+        if (report.reported_by !== userId && report.user.role !== 'dev') {
             return res.status(403).json({ message: "Forbidden: You are not the owner of this report" });
         }
 
@@ -98,7 +99,8 @@ export const postReport = async (req: any, res: Response) => {
 
         // ดึง userId จาก Token ที่ผ่าน Middleware verifyToken มาแล้ว
         const userId = req.user.user_id; 
-        
+        console.log("Check extract from req.user:", req.user); // ดูว่าก้อนนี้มี user_id หรือยัง
+        console.log("Check userId variable:", userId);
         const report = await handleCreateReport(req.body, userId);
         
         res.status(201).json({

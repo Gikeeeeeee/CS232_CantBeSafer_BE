@@ -40,7 +40,7 @@ services:
     env_file:
       - .env # วิธีนี้จะดึงไฟล์ .env เข้าไปรวมใน Docker ทันที
     ports:
-      - "5000:5000"
+      - "5000:5000" #พึ่งแก้ ปกติ 5000
     depends_on:
       - db
       - localstack

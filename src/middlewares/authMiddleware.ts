@@ -50,10 +50,10 @@ export const verifytoken = (req: AuthRequest, res: Response, next: NextFunction)
     }
 
     // verify token ถ้า token ผิด return 401
-    try{
-        const decoded = jwt.verify(token as string, config.TOKEN_KEY as string) as UserPayload;
-        req.user = decoded;
-        console.log(req.user);
+    try {
+    const decoded = jwt.verify(token as string, config.TOKEN_KEY as string) as UserPayload;
+    req.user = decoded; 
+    console.log("✅ Token Verified. Payload:", req.user); // ดูว่ามี user_id โผล่มาใน console ไหม
     }catch(err){
         console.log("JWT Verify Error:", err);
         return res.status(401).send("Invalid or Expired token");

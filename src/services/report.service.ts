@@ -99,8 +99,7 @@ export const uploadToS3 = async (file: Express.Multer.File) => {
 import { createReportInDB, createBoundaryInDB, createStatusLogInDB } from "../models/ReportModel";
 
 export const handleCreateReport = async (reqbody: any, userId: number) => {
-
-
+    console.log("=== SERVICE RECEIVE userId ===", userId);
     const report = await createReportInDB({
         title: reqbody.report_title,
         description: reqbody.report_description,

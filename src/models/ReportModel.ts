@@ -9,8 +9,13 @@ export const createReportInDB = async (reportData: {
     reported_by: number,
     report_status: string // ให้ Service เป็นคนส่งมาให้เสมอ
 }) => {
+    console.log("=== MODEL RECEIVE ===", reportData);
     const { title, description, urgency_score, latitude, longitude, reported_by, report_status } = reportData;
     
+    if (reported_by === undefined || reported_by === null) {
+        console.error("❌ ERROR: reported_by is missing right before SQL execution!");
+    }
+
     const result = await pool.query(
         `INSERT INTO reports (report_title, report_description, urgency_score, latitude, longitude, reported_by, report_status)
          VALUES ($1, $2, $3, $4, $5, $6, $7)
