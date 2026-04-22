@@ -21,3 +21,21 @@ export const getAdminActiveMapReportsInDB = async () => {
     const result = await pool.query(query);
     return result.rows;
 };
+
+export const updateReportStatusInDB = async (report_id: number, status: string, urgency_score: number) => {
+    const query = `
+        UPDATE reports 
+        SET 
+            report_status = $1, 
+            urgency_score = $2, 
+            updated_at = NOW(),
+            complete_at = CASE WHEN $4 = 'resolved' THEN NOW() ELSE complete_at END
+        WHERE report_id = $3
+        RETURNING *
+    `;
+    const result = await pool.query(query, [status, urgency_score, report_id, status]);
+    return result.rows[0];
+};
+
+
+
