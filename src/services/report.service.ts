@@ -98,7 +98,7 @@ export const uploadToS3 = async (file: Express.Multer.File) => {
 
 import { createReportInDB, createBoundaryInDB, createStatusLogInDB } from "../models/ReportModel";
 
-export const handleCreateReport = async (reqbody: any, userId: number) => {
+export const handleCreateReport = async (reqbody: any, userId: number,client?:any) => {
     console.log("=== SERVICE RECEIVE userId ===", userId);
     const report = await createReportInDB({
         title: reqbody.report_title,
@@ -108,13 +108,13 @@ export const handleCreateReport = async (reqbody: any, userId: number) => {
         longitude: reqbody.location.longitude,
         reported_by: userId,
         report_status: 'reported' // จัดการค่า Default ที่ Service
-    });
+    },client);
 
     // 1. สร้างข้อมูลขอบเขต (Boundary) ของ Report
     const boundary = await createBoundaryInDB({
         report_id: report.report_id,
         radius: 0.67 // ใช้ค่าจากหน้าบ้าน หรือค่าเริ่มต้นคือ 0.0
-    });
+    },client);
 
     // 2. บันทึกประวัติสถานะ (Status Log) ครั้งแรกตอนตั้งโพสต์
     await createStatusLogInDB({
@@ -122,7 +122,7 @@ export const handleCreateReport = async (reqbody: any, userId: number) => {
         old_status: null, // ครั้งแรกยังไม่มีสถานะก่อนหน้า
         new_status: 'reported',
         updated_by: userId
-    });
+    },client);
 
     // เรียกใช้ฟังก์ชันแปลงพิกัดเป็นชื่อสถานที่
     //const placeName = await getPlaceNameFromCoordinates(reqbody.location.latitude, reqbody.location.longitude);
@@ -138,7 +138,7 @@ export const handleCreateReport = async (reqbody: any, userId: number) => {
 
 import { createEvidenceInDB } from "../models/ReportModel";
 
-export const handleCreateEvidence = async (reqbody: any, userId: number) => {
+export const handleCreateEvidence = async (reqbody: any, userId: number,client?:any) => {
     if(!reqbody.report_id || !reqbody.file_url){
       throw new Error("Error at handleCreateEvidence in report.service maybe no report_id or file_url");
     }
@@ -153,8 +153,9 @@ export const handleCreateEvidence = async (reqbody: any, userId: number) => {
     return evidence;
 };
 
-// ลอง test กับ local => run ได้ปกติ
-export const uploadToRDS = async (data: any, userId: number) => {
+// ลอง test กับ local => run ได้ปกติ 
+// อันนี้คือจำลองเฉยๆ test ผ่านแล้ว test ตั้งแต่ signup -> logindev -> reports/post -> reports/postevidence
+/* export const uploadToRDS = async (data: any, userId: number) => {
     const report = await handleCreateReport(data, userId);
 
     const evidence = await handleCreateEvidence({
@@ -164,12 +165,51 @@ export const uploadToRDS = async (data: any, userId: number) => {
         location: data.location // ใช้พิกัดเดียวกันกับ report
     }, userId);
 
-    return {
+    return {        report_title: report.report_title,
+
         report_id: report.report_id,
-        report_title: report.report_title,
         report_status: report.report_status,
         evidence_url: evidence.file_url,
         location_name: report.location_name,
         radius: report.radius
     };
+}; 
+*/
+
+
+
+
+//อันนี้เป็นของ AWS RDS จริงๆ   
+
+import pool from "../config/db";
+
+export const uploadToRDS = async (data: any, userId: number) => {
+    const client = await pool.connect()
+    try{
+      await client.query('BEGIN');
+      const report = await handleCreateReport(data,userId,client);
+      const evidence = await handleCreateEvidence({
+        report_id:report.report_id,
+        file_url:data.evidence_url,
+        file_type:data.file_type || 'image/jpeg',
+        location:data.location
+      },userId,client);
+    
+    await client.query('COMMIT');
+    return { 
+            report_id: report.report_id,
+            report_title: report.report_title,
+            report_status: report.report_status,
+            evidence_url: evidence.file_url,
+            location_name: report.location_name,
+            radius: report.radius
+        };
+    }
+    catch(error){
+      await client.query('ROLLBACK'); // ✅ ถ้าพังแม้แต่นิดเดียว ให้ยกเลิกทั้งหมด (ไม่ต้อง Manual Delete แล้ว)
+      console.error("RDS Transaction Error, Rolled back:", error);
+      throw error;
+    }finally{
+        client.release();
+    }
 };
