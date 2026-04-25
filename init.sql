@@ -16,6 +16,7 @@ CREATE TABLE reports (
     report_title VARCHAR(255) NOT NULL,
     report_description TEXT,
     urgency_score INTEGER,
+    address TEXT,
     latitude FLOAT NOT NULL,
     longitude FLOAT NOT NULL,
 
