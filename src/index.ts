@@ -15,6 +15,19 @@ import authRouter from './routes/auth.route';
 import reportRouter from './routes/report.route';
 import testRouter from './routes/test.route';
 
+// Conditional Swagger UI setup - only in development
+if (process.env.NODE_ENV === 'development') {
+  const swaggerUi = require('swagger-ui-express');
+  const swaggerSpec = require('./config/swagger').default;
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, { 
+    swaggerOptions: { 
+      persistAuthorization: true,
+      displayRequestDuration: true 
+    } 
+  }));
+  console.log('✅ Swagger UI enabled at /api-docs');
+}
+
 // Define a basic route
 app.get('/', (req: Request, res: Response) => {
   res.json({ message: 'Niigaa' });
