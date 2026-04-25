@@ -5,7 +5,7 @@ import { checkRole, verifytoken } from '../middlewares/authMiddleware';
 const router = Router();
 
 router.post('/login', login);
-router.post('/login-dev', loginDev);
+//router.post('/login-dev', loginDev);
 router.post('/signup',sign_up)
 
 export default router;
