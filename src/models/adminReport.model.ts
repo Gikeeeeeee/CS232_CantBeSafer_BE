@@ -10,6 +10,7 @@ export const getAdminActiveMapReportsInDB = async () => {
             r.latitude, 
             r.longitude, 
             r.address,
+            r.report_description,
             b.radius, 
             r.created_at,
             COALESCE(

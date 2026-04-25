@@ -14,7 +14,7 @@ export const handleGetAdminActiveMap = async () => {
             longitude: report.longitude,
             address: report.address
         },
-
+        report_description: report.report_description,
         radius: report.radius,
         evidences: report.evidences,
         created_at: report.created_at
