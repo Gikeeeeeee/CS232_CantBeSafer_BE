@@ -48,6 +48,7 @@ export const handleUpdateReportStatus = async (report_id: number, status: string
         title: updatedReport.report_title,
         status: updatedReport.report_status,
         urgency_score: updatedReport.urgency_score,
-        updatedAt: updatedReport.updated_at
+        updatedAt: updatedReport.updated_at,
+        reportedBy: existingReport.reported_by // Return this for notification
     };
 };

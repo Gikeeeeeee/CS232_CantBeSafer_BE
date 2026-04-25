@@ -15,3 +15,8 @@ export const findUserByEmail = async (email: string) => {
     const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     return result.rows[0] || null;
 }
+
+export const getAllUsers = async () => {
+    const result = await pool.query(`SELECT user_id FROM users WHERE is_active = TRUE`);
+    return result.rows;
+};

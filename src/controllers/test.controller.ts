@@ -42,7 +42,7 @@ export const testSendNotification = async (req: AuthRequest, res: Response) => {
 export const testSubscribeTopic = async (req: AuthRequest, res: Response) => {
     try {
         // --- Hardcoded Authorization Logic (Admin only) ---
-        if (!req.user || req.user.role !== 'admin') {
+        if (!req.user || req.user.role == 'admin') {
             return res.status(403).json({ message: "Access denied. Only administrators can perform this action." });
         }
 
