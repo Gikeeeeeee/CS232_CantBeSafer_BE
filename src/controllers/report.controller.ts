@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { uploadToS3, handleCreateReport, handleCreateEvidence } from '../services/report.service';
+import { uploadToS3, handleCreateReport, handleCreateEvidence,uploadToRDS } from '../services/report.service';
 import { getReportById } from '../models/ReportModel';
 
 // อัปโหลดไป S3 ---
@@ -23,7 +23,8 @@ export const uploadReportEvidence = async (req: any, res: Response) => {
         // เช็คว่า Report มีอยู่จริง และเป็นของคนที่ส่งมาหรือไม่
         const report = await getReportById(reportIdNum);
         if (!report) return res.status(404).json({ message: "Report not found" });
-        if (report.reported_by !== userId) {
+                                            //bypass for dev ค่อยลบ
+        if (report.reported_by !== userId && req.user.role !== 'dev') {
             return res.status(403).json({ message: "Forbidden: You are not the owner of this report" });
         }
 
@@ -98,7 +99,8 @@ export const postReport = async (req: any, res: Response) => {
 
         // ดึง userId จาก Token ที่ผ่าน Middleware verifyToken มาแล้ว
         const userId = req.user.user_id; 
-        
+        console.log("Check extract from req.user:", req.user); // ดูว่าก้อนนี้มี user_id หรือยัง
+        console.log("Check userId variable:", userId);
         const report = await handleCreateReport(req.body, userId);
         
         res.status(201).json({
@@ -119,5 +121,39 @@ export const postReport = async (req: any, res: Response) => {
         });
     } catch (error: any) {
         res.status(500).json({ message: error.message || 'postReport at controller error'});
+    }
+};
+
+export const uploadReportToDB = async (req: any, res: Response) => {
+    try {
+
+        if (!req.file) return res.status(400).json({ message: "No image uploaded" });
+
+        const fileUrl = await uploadToS3(req.file);
+
+        const reportData = {
+            report_title: req.body.title,
+            report_description: req.body.description,
+            urgency_score: parseInt(req.body.urgency_score),
+            location: {
+                latitude: parseFloat(req.body.latitude),
+                longitude: parseFloat(req.body.longitude)
+            },
+            evidence_url: fileUrl, // URL จาก S3 ที่เพิ่งได้มา
+            file_type: req.file.mimetype
+        };
+
+        const userId = req.user.user_id;
+
+        const finalResult = await uploadToRDS(reportData, userId);
+
+        res.status(201).json({
+            message: "Report and Evidence saved to RDS successfully",
+            data: finalResult
+        });
+
+    } catch (error: any) {
+        console.error("RDS Save Error:", error);
+        res.status(500).json({ message: error.message });
     }
 };

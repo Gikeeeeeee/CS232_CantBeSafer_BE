@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { uploadReportEvidence, postReport } from '../controllers/report.controller';
+import { uploadReportEvidence, postReport,uploadReportToDB } from '../controllers/report.controller';
 import { upload } from '../middlewares/reportMiddleware';
 import * as LocationController from '../controllers/location.controller';
 import { getAdminActiveMap, updateIncidentStatus } from '../controllers/adminReport.controller';
