@@ -32,6 +32,18 @@ export const updateIncidentStatus = async (req: any, res: Response) => {
             });
         }
 
+        //urgency_score ที่เป็นไปได้
+        const possible_urgency_score = [1, 2, 3];
+        //status ที่เป็นไปได้ reported, in_progress, resolved
+        const possible_status = ["reported", "in_progress", "resolved"];
+
+        if (!possible_urgency_score.includes(urgency_score) || !possible_status.includes(status)) {
+            return res.status(400).json({
+                success: false,
+                message: 'urgency_score หรือ status ไม่ถูกต้อง. possible_status: 1, 2, 3 possible_urgency_score: "reported", "in_progress", "resolved" '
+            });
+        }
+
         const data = await handleUpdateReportStatus(parseInt(id), status, urgency_score, adminId);
 
         return res.status(200).json({
