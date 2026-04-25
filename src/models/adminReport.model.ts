@@ -11,7 +11,16 @@ export const getAdminActiveMapReportsInDB = async () => {
             r.longitude, 
             r.address,
             b.radius, 
-            r.created_at
+            r.created_at,
+            COALESCE(
+                (SELECT JSON_AGG(ev) 
+                 FROM (
+                     SELECT evidence_id, file_url, file_type, latitude, longitude, created_at 
+                     FROM report_evidences 
+                     WHERE report_id = r.report_id
+                 ) ev
+                ), '[]'
+            ) AS evidences
         FROM reports r
         LEFT JOIN report_boundaries b ON r.report_id = b.report_id
         WHERE r.report_status IN ('in_progress', 'reported')
