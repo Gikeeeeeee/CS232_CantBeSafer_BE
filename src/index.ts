@@ -8,7 +8,10 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors()); // Enable Cross-Origin Resource Sharing
+app.use(cors({
+  origin: 'YOUR_FE_URL', // ต้องระบุ endpoint ให้ตรงนะไม่งั้นหน้าบ้านยิง api เข้ามาไม่ได้
+  credentials: true,               // อนุญาตให้ส่ง Cookie / Token ได้
+}));
 app.use(express.json()); // Parse incoming JSON requests
 
 import authRouter from './routes/auth.route';
@@ -19,11 +22,11 @@ import testRouter from './routes/test.route';
 if (process.env.NODE_ENV === 'development') {
   const swaggerUi = require('swagger-ui-express');
   const swaggerSpec = require('./config/swagger').default;
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, { 
-    swaggerOptions: { 
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+    swaggerOptions: {
       persistAuthorization: true,
-      displayRequestDuration: true 
-    } 
+      displayRequestDuration: true
+    }
   }));
   console.log('✅ Swagger UI enabled at /api-docs');
 }
