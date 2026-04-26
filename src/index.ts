@@ -9,7 +9,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:3000', // ต้องระบุ endpoint ให้ตรงนะไม่งั้นหน้าบ้านยิง api เข้ามาไม่ได้
+  origin: 'YOUR_FE_URL', // ต้องระบุ endpoint ให้ตรงนะไม่งั้นหน้าบ้านยิง api เข้ามาไม่ได้
   credentials: true,               // อนุญาตให้ส่ง Cookie / Token ได้
 }));
 app.use(express.json()); // Parse incoming JSON requests
