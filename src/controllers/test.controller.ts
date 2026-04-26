@@ -41,14 +41,25 @@ export const testSendNotification = async (req: AuthRequest, res: Response) => {
 
 export const testSubscribeTopic = async (req: AuthRequest, res: Response) => {
     try {
-        // --- Hardcoded Authorization Logic (Admin only) ---
-        if (!req.user || req.user.role == 'admin') {
-            return res.status(403).json({ message: "Access denied. Only administrators can perform this action." });
+        if (!req.user) {
+            return res.status(401).json({ message: "Unauthorized. Please log in." });
         }
 
         const { email } = req.body;
         if (!email) {
             return res.status(400).json({ message: "Email is required in the request body." });
+        }
+
+        // ค้นหา user_id จาก email เพื่อตรวจสอบว่าเป็น email ของ user ที่กำลัง login อยู่หรือไม่
+        const userResult = await pool.query('SELECT user_id FROM users WHERE email = $1', [email]);
+        const user = userResult.rows[0];
+
+        if (!user) {
+            return res.status(404).json({ message: `User with email ${email} not found.` });
+        }
+
+        if (user.user_id !== req.user.user_id) {
+            return res.status(403).json({ message: "Access denied. You can only subscribe your own email." });
         }
 
         const response = await subscribeUserToTopic(email);
