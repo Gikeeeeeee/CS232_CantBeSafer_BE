@@ -6,13 +6,18 @@ dotenv.config();
 
 // Initialize the Express application
 const app = express();
+const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
 
 // Middleware
 app.use(cors({
-  origin: 'YOUR_FE_URL', // ต้องระบุ endpoint ให้ตรงนะไม่งั้นหน้าบ้านยิง api เข้ามาไม่ได้
-  credentials: true,               // อนุญาตให้ส่ง Cookie / Token ได้
+  origin: frontendUrl,
+  credentials: true,   
+  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'], 
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
-app.use(express.json()); // Parse incoming JSON requests
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true })); 
 
 import authRouter from './routes/auth.route';
 import reportRouter from './routes/report.route';
@@ -33,7 +38,7 @@ if (process.env.NODE_ENV === 'development') {
 
 // Define a basic route
 app.get('/', (req: Request, res: Response) => {
-  res.json({ message: 'Niigaa' });
+  res.json({ message: 'Server is running!' });
 });
 
 app.use('/auth', authRouter);
